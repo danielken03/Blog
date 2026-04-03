@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Daniel Kennedy's Blog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0b10;
+  --sb: #111018;
+  --surf: #1b1924;
+  --bdr: #2d2b3d;
+  --bdr2: #3d3b50;
+  --txt: #e5dfd2;
+  --mut: #6c6880;
+  --acc: #c9a76b;
+  --acc-bg: rgba(201,167,107,0.11);
+  --red: #c0514b;
+  --sw: 282px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'EB Garamond',Georgia,serif;background:var(--bg);color:var(--txt);font-size:18px}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);min-width:var(--sw);height:100vh;background:var(--sb);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:200}
+.sb-head{padding:28px 22px 18px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.sb-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--acc);letter-spacing:.01em}
+.sb-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:var(--mut);margin-top:3px}
+.sb-list{flex:1;overflow-y:auto;padding:6px 0}
+.sb-item{padding:13px 22px;cursor:pointer;border-left:3px solid transparent;transition:background .14s,border-color .14s;user-select:none}
+.sb-item:hover{background:rgba(255,255,255,.025)}
+.sb-item.active{border-left-color:var(--acc);background:var(--acc-bg)}
+.sb-item-name{font-family:'Playfair Display',serif;font-size:.92rem;font-weight:600;color:var(--txt);line-height:1.3}
+.sb-item.active .sb-item-name{color:var(--acc)}
+.sb-item-date{font-size:.68rem;color:var(--mut);margin-top:2px;font-style:italic}
+.sb-empty{padding:52px 22px;color:var(--mut);font-style:italic;font-size:.88rem;text-align:center}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{display:flex;align-items:center;padding:0 36px;height:58px;border-bottom:1px solid var(--bdr);gap:10px;flex-shrink:0}
+.hamburger{display:none;background:none;border:1px solid transparent;color:var(--mut);cursor:pointer;padding:6px;border-radius:6px;line-height:0;transition:color .14s,background .14s}
+.hamburger:hover{color:var(--txt);background:var(--surf)}
+.tgap{flex:1}
+.badge{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;background:var(--acc-bg);color:var(--acc);border:1px solid rgba(201,167,107,.22);border-radius:20px;padding:3px 11px}
+
+/* BUTTONS */
+.btn{font-family:'EB Garamond',serif;font-size:.88rem;padding:6px 16px;border-radius:6px;border:1px solid var(--bdr);color:var(--mut);background:transparent;cursor:pointer;transition:all .14s;white-space:nowrap}
+.btn:hover{color:var(--txt);background:var(--surf);border-color:var(--bdr2)}
+.btn-gold{background:var(--acc);color:#0c0b10;border-color:var(--acc);font-weight:600}
+.btn-gold:hover{background:#d4b478;border-color:#d4b478;color:#0c0b10}
+.btn-red{border-color:var(--red);color:var(--red)}
+.btn-red:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:56px 64px}
+.content-inner{max-width:700px}
+
+/* POST VIEW */
+.post-kicker{font-size:.7rem;text-transform:uppercase;letter-spacing:.13em;color:var(--acc);font-style:italic;margin-bottom:14px}
+.post-title{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;line-height:1.18;margin-bottom:20px}
+.post-rule{width:54px;height:2px;background:var(--acc);opacity:.5;margin-bottom:36px}
+.post-body{font-size:1.1rem;line-height:1.82}
+.post-body p{margin-bottom:1.2em}
+.post-body h1{font-family:'Playfair Display',serif;font-size:2rem;margin:2em 0 .6em;font-weight:700}
+.post-body h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin:1.75em 0 .6em;font-weight:600}
+.post-body h3{font-family:'Playfair Display',serif;font-size:1.15rem;margin:1.5em 0 .5em;font-weight:600}
+.post-body ul,.post-body ol{padding-left:1.6em;margin-bottom:1.2em}
+.post-body li{margin-bottom:.3em}
+.post-body blockquote{border-left:3px solid var(--acc);padding-left:1.4em;margin:1.5em 0;font-style:italic;color:var(--mut)}
+.post-body a{color:var(--acc);text-underline-offset:3px}
+.post-body img{max-width:100%;border-radius:6px;margin:1.2em 0;display:block}
+.post-body strong{font-weight:600}
+.post-body em{font-style:italic}
+.admin-bar{margin-top:48px;padding-top:24px;border-top:1px solid var(--bdr);display:flex;gap:10px}
+
+/* EMPTY STATE */
+.empty{padding:80px 0;color:var(--mut);font-style:italic}
+.empty h2{font-family:'Playfair Display',serif;font-size:2rem;color:var(--txt);margin-bottom:10px;font-style:normal}
+
+/* EDITOR */
+.field-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);margin-bottom:7px}
+.title-field{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;background:none;border:none;border-bottom:2px solid var(--bdr);color:var(--txt);width:100%;padding:6px 0 10px;outline:none;transition:border-color .2s;margin-bottom:28px}
+.title-field:focus{border-bottom-color:var(--acc)}
+.title-field::placeholder{color:var(--mut)}
+
+/* TOOLBAR */
+.toolbar{display:flex;flex-wrap:wrap;gap:3px;padding:10px 12px;background:var(--surf);border:1px solid var(--bdr);border-bottom:none;border-radius:8px 8px 0 0}
+.tb{font-family:'EB Garamond',serif;background:none;border:1px solid transparent;color:var(--mut);border-radius:4px;padding:4px 9px;cursor:pointer;font-size:.85rem;transition:all .1s;line-height:1.4;user-select:none}
+.tb:hover{background:var(--bdr);color:var(--txt)}
+.tb-sep{width:1px;background:var(--bdr);margin:2px 3px;align-self:stretch}
+
+/* EDITOR BODY */
+.ed-body{min-height:420px;padding:22px;border:1px solid var(--bdr);border-radius:0 0 8px 8px;background:var(--surf);outline:none;line-height:1.8;font-size:1.05rem;font-family:'EB Garamond',serif;color:var(--txt);caret-color:var(--acc);margin-bottom:24px}
+.ed-body:empty::before{content:'Begin writing...';color:var(--mut);font-style:italic;pointer-events:none}
+.ed-body p{margin-bottom:.9em}
+.ed-body h1{font-family:'Playfair Display',serif;font-size:2rem;margin:1.5em 0 .6em;font-weight:700}
+.ed-body h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin:1.25em 0 .6em;font-weight:600}
+.ed-body h3{font-family:'Playfair Display',serif;font-size:1.15rem;margin:1em 0 .5em;font-weight:600}
+.ed-body ul,.ed-body ol{padding-left:1.5em;margin-bottom:.9em}
+.ed-body img{max-width:100%;border-radius:6px;margin:.75em 0}
+.ed-actions{display:flex;gap:10px;padding-bottom:48px}
+
+/* MODALS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.74);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:32px;width:360px;max-width:94vw}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:6px}
+.modal p{font-size:.85rem;color:var(--mut);margin-bottom:20px}
+.modal-in{width:100%;background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:10px 14px;color:var(--txt);font-family:'EB Garamond',serif;font-size:1rem;outline:none;margin-bottom:10px;transition:border-color .2s}
+.modal-in:focus{border-color:var(--acc)}
+.modal-err{font-size:.78rem;color:var(--red);min-height:18px;margin-bottom:14px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+
+/* LINK POPUP */
+.link-pop{display:none;position:fixed;z-index:600;background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:12px;gap:8px;align-items:center;box-shadow:0 8px 40px rgba(0,0,0,.5);top:50%;left:50%;transform:translate(-50%,-50%)}
+.link-pop.show{display:flex}
+.link-pop input{background:var(--bg);border:1px solid var(--bdr);border-radius:5px;padding:7px 11px;color:var(--txt);font-family:'EB Garamond',serif;font-size:.9rem;width:240px;outline:none}
+.link-pop input:focus{border-color:var(--acc)}
+
+/* EXPORT NOTE */
+.export-note{font-size:.72rem;color:var(--mut);font-style:italic;margin-top:10px;padding:10px 14px;background:var(--acc-bg);border:1px solid rgba(201,167,107,.15);border-radius:6px;line-height:1.5}
+
+/* MOBILE OVERLAY */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+
+/* MOBILE */
+@media(max-width:768px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,.55)}
+  .sb-overlay.show{display:block}
+  .hamburger{display:flex;align-items:center;justify-content:center}
+  .topbar{padding:0 18px;gap:8px}
+  .content{padding:36px 22px}
+  .post-title{font-size:2rem}
+  .title-field{font-size:1.5rem}
+  #exportBtn{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-title" id="sbBlogTitle">Daniel Kennedy's Blog</div>
+      <div class="sb-label">All Posts</div>
+    </div>
+    <div class="sb-list" id="sbList">
+    <div class="sb-item active" onclick="showPost('p1775240878715')">
+      <div class="sb-item-name">Introduction</div>
+      <div class="sb-item-date">April 3, 2026</div>
+    </div>
+    <div class="sb-item" onclick="showPost('p1775114274406')">
+      <div class="sb-item-name">Testing my new blog website</div>
+      <div class="sb-item-date">April 2, 2026</div>
+    </div></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" onclick="toggleSb()" aria-label="Menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <div class="tgap"></div>
+      <span class="badge" id="adminBadge" style="">Admin</span>
+      <button class="btn btn-gold" id="newPostBtn" style="" onclick="startNew()">+ New Post</button>
+      <button class="btn" id="exportBtn" style="" onclick="doExport()">Export Site ↓</button>
+      <button class="btn" id="adminBtn" onclick="openLogin()" style="display: none;">Admin</button>
+      <button class="btn" id="logoutBtn" style="" onclick="doLogout()">Log out</button>
+    </div>
+    <div class="content" id="content">
+      <div class="content-inner" id="ci">
+    <div class="post-kicker">April 3, 2026</div>
+    <h1 class="post-title">Introduction</h1>
+    <div class="post-rule"></div>
+    <div class="post-body"><h1>The Introduction</h1><h2>Friday, April 3rd 2026</h2><h3>I have never done anything like this before,</h3><div>I thought I might want to try blogging. I have realised I really like talking to people about a variety of topics, especially those that I am very interested and have a passion for. But who am I? Who is Daniel Kennedy? What reason do you have to listen to me?</div><div><br></div><div>I am 22 years old, I work in the hospitality industry, and I have a lot of hobbies I invest my time into. Over the years I have been pretty devoted in juggling, even attempting to make it my career, rock climbing, audio visual work and video editing, and much more. Now my hobbies include golf in my spare time when weather is nice and computer programming.</div><div>I started programming like a lot of people with Minecraft, the game that inspires people to be creative and make things! While Minecraft is a lot of fighting zombies and building a house, to me it was a gateway drug that lead to more than I would have dreamed. I always liked building, when I was in high school my family was building a new house IRL, so I took the blueprints and built the house to 3:1 scale in Minecraft so we could see what it would look like from a first person perspective. This was always fun to be, but what I really enjoyed was the feeling of control in how the game functioned with the various commands and customisability. I created a dungeon map with custom mobs with different abilities and designed the corridors to look like you were walking through the catacombs in France. I felt like a true game developer, I felt like I was just given the tools to create my own game, even though I was just using the features given by Mojang. I started playing around 14 years old; my brain works very logically and this really got my gears turning. I loved the feeling of logically thinking through how to tackle an idea with the limitations of Minecraft. This started my passion for creativity and art, which leads to where we are today.</div><div><span style="font-family: &quot;Playfair Display&quot;, serif; font-size: 1.15rem; font-weight: 600;"><br></span></div><div><span style="font-family: &quot;Playfair Display&quot;, serif; font-size: 1.15rem; font-weight: 600;">I've never been a good artist,</span><br></div><p>I took art classes in high school and tried my hand at drawing, painting, wood carving, photography and videography, but nothing really clicked for me. I was always disappointed with the outcome of my work, especially with painting. Geez Louise I just couldn't understand how paintings can look so real! I am always left with blobs of color no matter how hard I try. The only good painting I had was a paint by number! I have a knack for creativity, but I could never find an outlet that suited me, until I started programming. I finally found something that rewards a lot of time and dedication and book smarts with accomplishment and a tangible product that I can be proud of.</p><p>I tend to pride myself on my knowledge, and I try to be as knowledgeable as I can. I'm always listening to podcasts or watching YouTube videos to learn new things, and at work I am very dedicated to learning new things and being the best I can. This definitely has its downsides that I will get to later, but sometimes I feel I know more than I am given credit for. Programming gave me a creative outlet, somewhere that I can express myself and show others what I am really capable of. I started my first programming project outside of Minecraft in late 2024. I wanted to learn how to make a mobile app, I figured it couldn't be that hard and it would be really cool to make an app that other people could enjoy and see all of the effort that went into developing it. What is most rewarding to me often times is what people think about me; money is not a huge motivator, but performance and recognition for my efforts. I wanted to make the app free, whatever app I decided to make, but I needed an idea. I needed inspiration for what app to make.</p><h3>My parents love Yahtzee,</h3><div>My dad has a few apps on his phone that he can play random times, like when he is waiting for the oil change in the car or a few minutes before bed to relax, and one of his favourites is Yahtzee, or the off brand "Five Dice" since Yahtzee is copyrighted. My mom also loves Yahtzee, this was one of her dad's favourite games when she was young and it holds a special place in her heart now that he has passed. She shares a special memory when we play; we still use his original set with the same old dice and same old cup, we even have some of the old score cards with his name on it. Since I already know 3 people including myself that would enjoy a Yahtzee app, I figured this would be a great project to start on! I thought I knew the basics, I knew I didn't want to get super deep with online leaderboards or multi-player functionality, I wanted to keep it basic.</div><div>I didn't take any computer science classes in high school, I didn't have any friends that enjoyed programming either. I have been watching a Twitch streamer and YouTuber named DougDoug for a few years at this point, and he had a professional background in programming working for a large gaming company called EA. On his streams he would often times go on "five minute coding adventures" which are much longer than five minutes, sometimes taking a few hours and the entire stream will be coding. He has a wonderful way of making things exciting and fun to watch! Overstimulating the viewers senses with crazy sounds and on screen elements that even if you don't know and don't care about programming, you are still going to have a good time. I learned a lot just by watching his streams and seeing the code that he was writing, and I felt like I could do anything with one of his streams in the background. That turns out to be a lot harder than I expected...</div><div>I found a few YouTube tutorials on how to make an Android app with a program called Android Studio. This helped me get the ground work for my app, and learning how to design the front end of my code as it is very different than standard HTML. With the help of ChatGPT that I was using at the time, I was able to tell it what I was looking to make and have it explain to me how it works. ChatGPT would write the code, then explain to me what it was and how I can write it in the future and what makes it work. Here is an example of part of the code that allows the dice to "roll";</div><div><br></div><div><div><b>private fun rollDice() {</b></div><div><b>&nbsp; &nbsp; val dice = listOf(dice1, dice2, dice3, dice4, dice5)</b></div><div><b><br></b></div><div><b>&nbsp; &nbsp; dice.forEachIndexed { index, diceView -&gt;</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; if (!lockedDice[index]) {</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; val value = (1..6).random()</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentDiceValues[index] = value</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; diceView.setImageResource(getDiceResource(value))</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; }</b></div><div><b>&nbsp; &nbsp; }</b></div><div><b>}</b></div></div><div><b><br></b></div><div>I have a picture of each dice face, from 1-6, saved in the code. This function, using&nbsp;<span style="font-size: 18.9px;">(1..6).random(),</span><span style="font-size: 1.05rem;">&nbsp;will randomly choose a number from 1-6 and choose the dice face that </span>corresponds<span style="font-size: 1.05rem;">&nbsp;to that number from the </span>array<span style="font-size: 1.05rem;">. The actual function is a lot more complicated than this, I have the dice "spin" by rolling through very quickly scrolling between all of the images, giving the feel that the dice is rolling until it eventually stops on the randomly selected number.</span></div><div>All of this would not have been possible for me to create if it wasn't for the help of AI. I know <i>what needs to be written</i>&nbsp;to get the desired outcome, but I don't know <i>how to write it. </i>I never formally learned any coding languages, and I had never even heard of Kotlin before starting this project. The logical part of my brain, knowing how computers communicate, knows what message needs to be said to the computer, but I don't know the words to say. ChatGPT was a very important instrument when I started to learn programming, and this project took me around 4-5 months to get it where I was comfortable and happy to stop working on it. I was able to create the core game of Yahtzee, with auto calculating scores and detecting locked dice, and not letting players unselect scores so scores were locked in after each round, but also letting players unselect if they accidentally hit the wrong button. A lot of logic went into the "rules" of the game, everything needs to be defined much more clearly then when you are simply explaining to a person the rules of a game.</div><div>After I made the core game, I made a leaderboard that is stored on the device, so it is not a global leaderboard but rather a per-device leaderboard to flex high scores with friends on your same device. I made a setting page where you can customise the colours of the app and the text and dice size for if you can't read smaller text. I also created another version of Yahtzee where you can bank unused rolls and use them as extra rolls on your next turn, giving the user a better chance at getting Yahtzee towards the end of the game. I am very proud of how this app turned out, and I finished it just in time to give to my Dad as a Christmas present.</div><h3>Present day,</h3><p>After making this mobile app, I took a break from programming for a while and focused on other hobbies. I got the job I am working currently which is in the front office at a Marriott hotel, and the property management system they use looks pretty old; it looks like it is from the 80's and you are programming or hacking into the Pentagon. It's old and some people get very confused and it's hard to learn, but I love it. I never want it to leave! I feel very comfortable with it, and it reminded me of what programming was like and how much I enjoy it. There are reports you can create to do various things, but creating the reports can be difficult if you are not familiar with operators and terminology. After I worked on this system for a few months I decided I want to work on programming again, but this time I want to get into web development. I've always thought it would be cool to make a website, but again just like Yahtzee I lacked inspiration of what to make. I tend to be a workaholic, which I admit is not my best trait, but I am passionate and inspired to make a website that would greatly improve my company and their systems! I started working on this website and I am still developing this as I am writing this, but I was shocked with how easy creating website is with JavaScript and React front end! I will not be sharing anything about the website I am making to pitch to my company and I am keeping that between me and my work, but I can share about the website you are on now, KennDoesDev.com.</p><p>The website I mentioned above is just running on local host, and I don't plan on publishing it personally, but I did want to make a public website that I can share with people! Introducing, KennDoesDev! This stands for Kennedy Does Development, and this is where I will be publishing all of my future projects. Right now I have 3 published: a notebook, an AI email assistant, and this blog you are reading now. Let's go into a little more detail about each of these projects. I will go in depth about how they work in later blogs, but for now I can at least share what they are and what they do!</p><h3>Notebook</h3><div>I really like Google products, like Google slides, sheets, docs, etc. The only thing I don't like about Google docs and Word is there are not really good organization tools, especially on Mobile. I also figured a notebook is something that would be very easy and minimal to create, and this would be an incredible learning opportunity for pushing a coding project into a real website. My website is being run on Vercel servers, which pull my code from a GitHub repository, and for notebook I am using Google Firebase for authentication and as a database. Firebase is a great resource, I am still learning about all of its features, but it allows people to sign in to my project using their Google account and creates a database for each user automatically! I tried working with SQLite but man is it confusing. I am also seeing how Google authentication is very secure, as I cannot see anyone's information except their email address; I can't even access their database so their information is completely secure. I now feel more safe when logging into some other website using my Google account because I can directly see what the owner sees.</div><div>This notebook web app was very simple to make, you can create folders or pages, and you can even create locked pages! I am saving my passwords on one of the locked pages in my account, and the beauty of this is it is a website so I can access this from anywhere! I don't need to transfer anything from my phone to a new phone like passwords, it all can be accessed from a computer or anywhere. I'm very happy with how this project turned out, and making the notebook itself only took maybe 2 hours, most of the time was spent learning how to use Vercel, SquareSpace Domains, and Google Firebase.</div><h3>AI Email Assistant</h3><div>So many people use ChatGPT to write their emails for them. I don't really like this. I wish people were hand writing more emails and putting more thought into their messages, but I also understand time is money and when you have to write tens or hundreds of emails each day it is very helpful to have someone (or something) that can help you speed up that process. Now opening a tab on your browser and going to ChatGPT is not the best way to do this in my opinion. I have been the recipient of countless AI written emails and it just makes me sad, because it's blatant that the person emailing me didn't even take the time to proofread or edit the response to make it sound more human. There's no personality involved, and I don't like to see random bolded words or bullet points in an email that doesn't need it. That being said, I also understand that AI is an incredible resource, and people should use it to save time where they can and improve their productivity. I want to create a tool that everyone can use that specialises in helping write better emails easier, and will generate better and more human sounding responses.</div><div>Introducing, "Daniel's AI Email Assistant!"</div><div>Using Claude, the better performing and more ethical company, I trained one of their models and gave it a bunch of rules so it will generate the best email possible. This also will follow any company guidelines and can be adjusted to fit specific companies if requested. I prioritised making this strictly an email writing AI, so you cannot look up anything profane or random things on the internet. I have 2 boxes on the main page: one for composing an email, which is designed to email someone for the first time regarding whatever the user says, and the other is for replying to an email. The reply section has 2 boxes, one that I designed so you can copy an email or email chain and paste it to give the AI context, then the other box s for what you want to reply. You can say something simple like <u>"answer by saying yes I think that's a great idea, let's order more credit card readers but give me a scope of different ones with price ranges."</u> By saying this simple part, the AI will review the context and make a reply for the specific person you are replying to and it will fill in the blanks you may have left that need answering. It truly is a wonderful tool that I will personally be using a lot, and hopefully other people can get some use out of it as well.</div><h3>Daniel's Blog</h3><div>I have never been a blogger before, as I mentioned at the top of this blog post, but I want to give it a try. Sometimes I feel like I am very knowledgeable about a lot of topics and I want to share that knowledge with people, but people don't listen to what I have to say a lot of times. I feel bad when I drag people into conversation with me, because they probably don't care at all about what I am saying but they don't want to hurt my feelings. I really just want to be heard, I want to be acknowledged, I want to be recognised for my success and not be downplayed as a goofball that doesn't know what he's talking about. I don't want to have uncomfortable conversations with people who don't care, but I still have a longing for my voice to be heard. My solution? Start a blog! This way I can voice my passions and voice my opinions, and people don't have to listen to me ramble! Speaking about rambling, I am horrible with words and speaking to people. I can never get my point across. What I like about typing is I can just think and put my thoughts into words without messing it up. I can convey the message I have in my head and people can read a coherent thought instead of countless rabbit trails. You know what's the best part? Nobody has to care. Nobody is obligated to listen to me or read what I have to say, but I am still able to fulfil my need to have my voice heard. My thoughts are out there, and I have at least one person reading every message I write; myself.</div><h2>Conclusion</h2><div>My plan for this blog is to get my thoughts out there. I plan on posting every Friday sometime before midnight, and I will try to keep to a structure you can expect and can follow.</div><div><ol><li>Introduction/start of my week</li><li>One news topic, typically something related to business or tech but possibly some politics</li><li>Something I learned, typically tech and programming based, but I am also learning Chinese so I will include a Chinese word of the week</li><li>Bible study passage of the week, I will say what I have learned or applied to my life from scripture</li><li>News in the hospitality industry and take aways I have learned recently or want to teach people</li><li>Other news/conclusion</li></ol><div>Hopefully I can stick to this structure, so if you care about tech news and want to learn the newest breakthroughs in AI or something similar, you can just scroll to section 2 each week. I am designing this blog to fit any audience, and my hope is that someone can learn from this. Whether you are learning about news, learning about me and what makes my brain tick and what makes me who I am, learning Chinese along side me, or learning about God, I hope people can enjoy my content and I hope I can add something meaningful to your weekly routine.</div></div><div><br></div><div>Daniel Kennedy | Your not-so average front desk agent</div></div>
+    
+      <div class="admin-bar">
+        <button class="btn btn-gold" onclick="startEdit('p1775240878715')">Edit Post</button>
+        <button class="btn btn-red" onclick="askDelete('p1775240878715')">Delete</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="overlay" id="loginModal">
+  <div class="modal">
+    <h3>Admin Login</h3>
+    <p>Enter your password to manage posts.</p>
+    <input class="modal-in" type="password" id="pwIn" placeholder="Password" autocomplete="off" onkeydown="if(event.key==='Enter')tryLogin()">
+    <div class="modal-err" id="loginErr"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeLogin()">Cancel</button>
+      <button class="btn btn-gold" onclick="tryLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="overlay" id="delModal">
+  <div class="modal">
+    <h3>Delete this post?</h3>
+    <p>This action cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn" onclick="document.getElementById('delModal').classList.remove('show')">Cancel</button>
+      <button class="btn btn-red" onclick="confirmDelete()">Delete Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- LINK POPUP -->
+<div class="link-pop" id="linkPop">
+  <input type="url" id="linkUrl" placeholder="https://..." onkeydown="if(event.key==='Enter')doLink();if(event.key==='Escape')closeLinkPop()">
+  <button class="btn btn-gold" onclick="doLink()" style="padding:6px 12px;font-size:.8rem">Insert</button>
+  <button class="btn" onclick="closeLinkPop()" style="padding:6px 12px;font-size:.8rem">Cancel</button>
+</div>
+
+<script>
+const BLOG_TITLE    = "Daniel Kennedy's Blog";       // Your blog's display name
+const ADMIN_PASS    = "BlogKen6587!";   // Your admin password — change this!
+
+/* ============================================================
+   BAKED POST DATA — managed automatically via Export Site
+   Do not edit this line manually.
+   ============================================================ */
+const BAKED_POSTS = [{"id":"p1775240878715","title":"Introduction","content":"<h1>The Introduction</h1><h2>Friday, April 3rd 2026</h2><h3>I have never done anything like this before,</h3><div>I thought I might want to try blogging. I have realised I really like talking to people about a variety of topics, especially those that I am very interested and have a passion for. But who am I? Who is Daniel Kennedy? What reason do you have to listen to me?</div><div><br></div><div>I am 22 years old, I work in the hospitality industry, and I have a lot of hobbies I invest my time into. Over the years I have been pretty devoted in juggling, even attempting to make it my career, rock climbing, audio visual work and video editing, and much more. Now my hobbies include golf in my spare time when weather is nice and computer programming.</div><div>I started programming like a lot of people with Minecraft, the game that inspires people to be creative and make things! While Minecraft is a lot of fighting zombies and building a house, to me it was a gateway drug that lead to more than I would have dreamed. I always liked building, when I was in high school my family was building a new house IRL, so I took the blueprints and built the house to 3:1 scale in Minecraft so we could see what it would look like from a first person perspective. This was always fun to be, but what I really enjoyed was the feeling of control in how the game functioned with the various commands and customisability. I created a dungeon map with custom mobs with different abilities and designed the corridors to look like you were walking through the catacombs in France. I felt like a true game developer, I felt like I was just given the tools to create my own game, even though I was just using the features given by Mojang. I started playing around 14 years old; my brain works very logically and this really got my gears turning. I loved the feeling of logically thinking through how to tackle an idea with the limitations of Minecraft. This started my passion for creativity and art, which leads to where we are today.</div><div><span style=\"font-family: &quot;Playfair Display&quot;, serif; font-size: 1.15rem; font-weight: 600;\"><br></span></div><div><span style=\"font-family: &quot;Playfair Display&quot;, serif; font-size: 1.15rem; font-weight: 600;\">I've never been a good artist,</span><br></div><p>I took art classes in high school and tried my hand at drawing, painting, wood carving, photography and videography, but nothing really clicked for me. I was always disappointed with the outcome of my work, especially with painting. Geez Louise I just couldn't understand how paintings can look so real! I am always left with blobs of color no matter how hard I try. The only good painting I had was a paint by number! I have a knack for creativity, but I could never find an outlet that suited me, until I started programming. I finally found something that rewards a lot of time and dedication and book smarts with accomplishment and a tangible product that I can be proud of.</p><p>I tend to pride myself on my knowledge, and I try to be as knowledgeable as I can. I'm always listening to podcasts or watching YouTube videos to learn new things, and at work I am very dedicated to learning new things and being the best I can. This definitely has its downsides that I will get to later, but sometimes I feel I know more than I am given credit for. Programming gave me a creative outlet, somewhere that I can express myself and show others what I am really capable of. I started my first programming project outside of Minecraft in late 2024. I wanted to learn how to make a mobile app, I figured it couldn't be that hard and it would be really cool to make an app that other people could enjoy and see all of the effort that went into developing it. What is most rewarding to me often times is what people think about me; money is not a huge motivator, but performance and recognition for my efforts. I wanted to make the app free, whatever app I decided to make, but I needed an idea. I needed inspiration for what app to make.</p><h3>My parents love Yahtzee,</h3><div>My dad has a few apps on his phone that he can play random times, like when he is waiting for the oil change in the car or a few minutes before bed to relax, and one of his favourites is Yahtzee, or the off brand \"Five Dice\" since Yahtzee is copyrighted. My mom also loves Yahtzee, this was one of her dad's favourite games when she was young and it holds a special place in her heart now that he has passed. She shares a special memory when we play; we still use his original set with the same old dice and same old cup, we even have some of the old score cards with his name on it. Since I already know 3 people including myself that would enjoy a Yahtzee app, I figured this would be a great project to start on! I thought I knew the basics, I knew I didn't want to get super deep with online leaderboards or multi-player functionality, I wanted to keep it basic.</div><div>I didn't take any computer science classes in high school, I didn't have any friends that enjoyed programming either. I have been watching a Twitch streamer and YouTuber named DougDoug for a few years at this point, and he had a professional background in programming working for a large gaming company called EA. On his streams he would often times go on \"five minute coding adventures\" which are much longer than five minutes, sometimes taking a few hours and the entire stream will be coding. He has a wonderful way of making things exciting and fun to watch! Overstimulating the viewers senses with crazy sounds and on screen elements that even if you don't know and don't care about programming, you are still going to have a good time. I learned a lot just by watching his streams and seeing the code that he was writing, and I felt like I could do anything with one of his streams in the background. That turns out to be a lot harder than I expected...</div><div>I found a few YouTube tutorials on how to make an Android app with a program called Android Studio. This helped me get the ground work for my app, and learning how to design the front end of my code as it is very different than standard HTML. With the help of ChatGPT that I was using at the time, I was able to tell it what I was looking to make and have it explain to me how it works. ChatGPT would write the code, then explain to me what it was and how I can write it in the future and what makes it work. Here is an example of part of the code that allows the dice to \"roll\";</div><div><br></div><div><div><b>private fun rollDice() {</b></div><div><b>&nbsp; &nbsp; val dice = listOf(dice1, dice2, dice3, dice4, dice5)</b></div><div><b><br></b></div><div><b>&nbsp; &nbsp; dice.forEachIndexed { index, diceView -&gt;</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; if (!lockedDice[index]) {</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; val value = (1..6).random()</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentDiceValues[index] = value</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; diceView.setImageResource(getDiceResource(value))</b></div><div><b>&nbsp; &nbsp; &nbsp; &nbsp; }</b></div><div><b>&nbsp; &nbsp; }</b></div><div><b>}</b></div></div><div><b><br></b></div><div>I have a picture of each dice face, from 1-6, saved in the code. This function, using&nbsp;<span style=\"font-size: 18.9px;\">(1..6).random(),</span><span style=\"font-size: 1.05rem;\">&nbsp;will randomly choose a number from 1-6 and choose the dice face that </span>corresponds<span style=\"font-size: 1.05rem;\">&nbsp;to that number from the </span>array<span style=\"font-size: 1.05rem;\">. The actual function is a lot more complicated than this, I have the dice \"spin\" by rolling through very quickly scrolling between all of the images, giving the feel that the dice is rolling until it eventually stops on the randomly selected number.</span></div><div>All of this would not have been possible for me to create if it wasn't for the help of AI. I know <i>what needs to be written</i>&nbsp;to get the desired outcome, but I don't know <i>how to write it. </i>I never formally learned any coding languages, and I had never even heard of Kotlin before starting this project. The logical part of my brain, knowing how computers communicate, knows what message needs to be said to the computer, but I don't know the words to say. ChatGPT was a very important instrument when I started to learn programming, and this project took me around 4-5 months to get it where I was comfortable and happy to stop working on it. I was able to create the core game of Yahtzee, with auto calculating scores and detecting locked dice, and not letting players unselect scores so scores were locked in after each round, but also letting players unselect if they accidentally hit the wrong button. A lot of logic went into the \"rules\" of the game, everything needs to be defined much more clearly then when you are simply explaining to a person the rules of a game.</div><div>After I made the core game, I made a leaderboard that is stored on the device, so it is not a global leaderboard but rather a per-device leaderboard to flex high scores with friends on your same device. I made a setting page where you can customise the colours of the app and the text and dice size for if you can't read smaller text. I also created another version of Yahtzee where you can bank unused rolls and use them as extra rolls on your next turn, giving the user a better chance at getting Yahtzee towards the end of the game. I am very proud of how this app turned out, and I finished it just in time to give to my Dad as a Christmas present.</div><h3>Present day,</h3><p>After making this mobile app, I took a break from programming for a while and focused on other hobbies. I got the job I am working currently which is in the front office at a Marriott hotel, and the property management system they use looks pretty old; it looks like it is from the 80's and you are programming or hacking into the Pentagon. It's old and some people get very confused and it's hard to learn, but I love it. I never want it to leave! I feel very comfortable with it, and it reminded me of what programming was like and how much I enjoy it. There are reports you can create to do various things, but creating the reports can be difficult if you are not familiar with operators and terminology. After I worked on this system for a few months I decided I want to work on programming again, but this time I want to get into web development. I've always thought it would be cool to make a website, but again just like Yahtzee I lacked inspiration of what to make. I tend to be a workaholic, which I admit is not my best trait, but I am passionate and inspired to make a website that would greatly improve my company and their systems! I started working on this website and I am still developing this as I am writing this, but I was shocked with how easy creating website is with JavaScript and React front end! I will not be sharing anything about the website I am making to pitch to my company and I am keeping that between me and my work, but I can share about the website you are on now, KennDoesDev.com.</p><p>The website I mentioned above is just running on local host, and I don't plan on publishing it personally, but I did want to make a public website that I can share with people! Introducing, KennDoesDev! This stands for Kennedy Does Development, and this is where I will be publishing all of my future projects. Right now I have 3 published: a notebook, an AI email assistant, and this blog you are reading now. Let's go into a little more detail about each of these projects. I will go in depth about how they work in later blogs, but for now I can at least share what they are and what they do!</p><h3>Notebook</h3><div>I really like Google products, like Google slides, sheets, docs, etc. The only thing I don't like about Google docs and Word is there are not really good organization tools, especially on Mobile. I also figured a notebook is something that would be very easy and minimal to create, and this would be an incredible learning opportunity for pushing a coding project into a real website. My website is being run on Vercel servers, which pull my code from a GitHub repository, and for notebook I am using Google Firebase for authentication and as a database. Firebase is a great resource, I am still learning about all of its features, but it allows people to sign in to my project using their Google account and creates a database for each user automatically! I tried working with SQLite but man is it confusing. I am also seeing how Google authentication is very secure, as I cannot see anyone's information except their email address; I can't even access their database so their information is completely secure. I now feel more safe when logging into some other website using my Google account because I can directly see what the owner sees.</div><div>This notebook web app was very simple to make, you can create folders or pages, and you can even create locked pages! I am saving my passwords on one of the locked pages in my account, and the beauty of this is it is a website so I can access this from anywhere! I don't need to transfer anything from my phone to a new phone like passwords, it all can be accessed from a computer or anywhere. I'm very happy with how this project turned out, and making the notebook itself only took maybe 2 hours, most of the time was spent learning how to use Vercel, SquareSpace Domains, and Google Firebase.</div><h3>AI Email Assistant</h3><div>So many people use ChatGPT to write their emails for them. I don't really like this. I wish people were hand writing more emails and putting more thought into their messages, but I also understand time is money and when you have to write tens or hundreds of emails each day it is very helpful to have someone (or something) that can help you speed up that process. Now opening a tab on your browser and going to ChatGPT is not the best way to do this in my opinion. I have been the recipient of countless AI written emails and it just makes me sad, because it's blatant that the person emailing me didn't even take the time to proofread or edit the response to make it sound more human. There's no personality involved, and I don't like to see random bolded words or bullet points in an email that doesn't need it. That being said, I also understand that AI is an incredible resource, and people should use it to save time where they can and improve their productivity. I want to create a tool that everyone can use that specialises in helping write better emails easier, and will generate better and more human sounding responses.</div><div>Introducing, \"Daniel's AI Email Assistant!\"</div><div>Using Claude, the better performing and more ethical company, I trained one of their models and gave it a bunch of rules so it will generate the best email possible. This also will follow any company guidelines and can be adjusted to fit specific companies if requested. I prioritised making this strictly an email writing AI, so you cannot look up anything profane or random things on the internet. I have 2 boxes on the main page: one for composing an email, which is designed to email someone for the first time regarding whatever the user says, and the other is for replying to an email. The reply section has 2 boxes, one that I designed so you can copy an email or email chain and paste it to give the AI context, then the other box s for what you want to reply. You can say something simple like <u>\"answer by saying yes I think that's a great idea, let's order more credit card readers but give me a scope of different ones with price ranges.\"</u> By saying this simple part, the AI will review the context and make a reply for the specific person you are replying to and it will fill in the blanks you may have left that need answering. It truly is a wonderful tool that I will personally be using a lot, and hopefully other people can get some use out of it as well.</div><h3>Daniel's Blog</h3><div>I have never been a blogger before, as I mentioned at the top of this blog post, but I want to give it a try. Sometimes I feel like I am very knowledgeable about a lot of topics and I want to share that knowledge with people, but people don't listen to what I have to say a lot of times. I feel bad when I drag people into conversation with me, because they probably don't care at all about what I am saying but they don't want to hurt my feelings. I really just want to be heard, I want to be acknowledged, I want to be recognised for my success and not be downplayed as a goofball that doesn't know what he's talking about. I don't want to have uncomfortable conversations with people who don't care, but I still have a longing for my voice to be heard. My solution? Start a blog! This way I can voice my passions and voice my opinions, and people don't have to listen to me ramble! Speaking about rambling, I am horrible with words and speaking to people. I can never get my point across. What I like about typing is I can just think and put my thoughts into words without messing it up. I can convey the message I have in my head and people can read a coherent thought instead of countless rabbit trails. You know what's the best part? Nobody has to care. Nobody is obligated to listen to me or read what I have to say, but I am still able to fulfil my need to have my voice heard. My thoughts are out there, and I have at least one person reading every message I write; myself.</div><h2>Conclusion</h2><div>My plan for this blog is to get my thoughts out there. I plan on posting every Friday sometime before midnight, and I will try to keep to a structure you can expect and can follow.</div><div><ol><li>Introduction/start of my week</li><li>One news topic, typically something related to business or tech but possibly some politics</li><li>Something I learned, typically tech and programming based, but I am also learning Chinese so I will include a Chinese word of the week</li><li>Bible study passage of the week, I will say what I have learned or applied to my life from scripture</li><li>News in the hospitality industry and take aways I have learned recently or want to teach people</li><li>Other news/conclusion</li></ol><div>Hopefully I can stick to this structure, so if you care about tech news and want to learn the newest breakthroughs in AI or something similar, you can just scroll to section 2 each week. I am designing this blog to fit any audience, and my hope is that someone can learn from this. Whether you are learning about news, learning about me and what makes my brain tick and what makes me who I am, learning Chinese along side me, or learning about God, I hope people can enjoy my content and I hope I can add something meaningful to your weekly routine.</div></div><div><br></div><div>Daniel Kennedy | Your not-so average front desk agent</div>","date":"2026-04-03T18:27:58.718Z"},{"id":"p1775114274406","title":"Testing my new blog website","content":"This is a test blog.","date":"2026-04-02T07:17:54.406Z"}]; /* __POSTS_END__ */
+const BAKED_TS    = 1775241116180;  /* __TS_END__ */
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let posts       = [];
+let curId       = null;
+let isAdmin     = false;
+let editing     = false;
+let savedRange  = null;
+let delTargetId = null;
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init() {
+  document.title = BLOG_TITLE;
+  document.getElementById('sbBlogTitle').textContent = BLOG_TITLE;
+
+  // Use baked posts if they're newer than localStorage, else localStorage
+  const lsRaw = localStorage.getItem('blog_posts');
+  const lsTs  = parseInt(localStorage.getItem('blog_posts_ts') || '0');
+
+  if (lsRaw && lsTs >= BAKED_TS) {
+    try { posts = JSON.parse(lsRaw); } catch { posts = [...BAKED_POSTS]; }
+  } else {
+    posts = [...BAKED_POSTS];
+    persist();
+  }
+
+  renderSb();
+  if (posts.length) showPost(posts[0].id);
+  else renderEmpty();
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+function renderSb() {
+  const el = document.getElementById('sbList');
+  if (!posts.length) {
+    el.innerHTML = '<div class="sb-empty">No posts yet.</div>';
+    return;
+  }
+  el.innerHTML = posts.map(p => `
+    <div class="sb-item${p.id === curId ? ' active' : ''}" onclick="showPost('${p.id}')">
+      <div class="sb-item-name">${esc(p.title)}</div>
+      <div class="sb-item-date">${fmtDate(p.date)}</div>
+    </div>`).join('');
+}
+
+function toggleSb() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sbOverlay').classList.toggle('show');
+}
+function closeSb() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').classList.remove('show');
+}
+
+/* ============================================================
+   POST VIEW
+   ============================================================ */
+function showPost(id) {
+  if (editing && !confirm('Leave without saving changes?')) return;
+  editing = false;
+  curId = id;
+  closeSb();
+  renderSb();
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('ci').innerHTML = `
+    <div class="post-kicker">${fmtDate(p.date)}</div>
+    <h1 class="post-title">${esc(p.title)}</h1>
+    <div class="post-rule"></div>
+    <div class="post-body">${p.content}</div>
+    ${isAdmin ? `
+      <div class="admin-bar">
+        <button class="btn btn-gold" onclick="startEdit('${p.id}')">Edit Post</button>
+        <button class="btn btn-red" onclick="askDelete('${p.id}')">Delete</button>
+      </div>` : ''}`;
+}
+
+function renderEmpty() {
+  document.getElementById('ci').innerHTML = `
+    <div class="empty">
+      <h2>Nothing here yet.</h2>
+      <p>${isAdmin ? 'Click "+ New Post" above to write your first entry.' : 'Check back soon.'}</p>
+    </div>`;
+}
+
+/* ============================================================
+   EDITOR
+   ============================================================ */
+function startNew()      { curId = null; editing = true; renderEditor(null); }
+function startEdit(id)   { curId = id;   editing = true; renderEditor(posts.find(p => p.id === id)); }
+
+function renderEditor(p) {
+  closeSb();
+  document.getElementById('ci').innerHTML = `
+    <div class="field-lbl">Post Title</div>
+    <input class="title-field" id="edTitle" placeholder="Enter your title..." value="${p ? esc(p.title) : ''}">
+    <div class="field-lbl">Content</div>
+    <div class="toolbar">
+      <button class="tb" onmousedown="return false" onclick="fmt('bold')" title="Bold"><b>B</b></button>
+      <button class="tb" onmousedown="return false" onclick="fmt('italic')" title="Italic"><em>I</em></button>
+      <button class="tb" onmousedown="return false" onclick="fmt('underline')" title="Underline"><u>U</u></button>
+      <div class="tb-sep"></div>
+      <button class="tb" onmousedown="return false" onclick="blk('h1')" title="Heading 1">H1</button>
+      <button class="tb" onmousedown="return false" onclick="blk('h2')" title="Heading 2">H2</button>
+      <button class="tb" onmousedown="return false" onclick="blk('h3')" title="Heading 3">H3</button>
+      <button class="tb" onmousedown="return false" onclick="blk('p')"  title="Paragraph">P</button>
+      <div class="tb-sep"></div>
+      <button class="tb" onmousedown="return false" onclick="fmt('insertUnorderedList')" title="Bullet list">• List</button>
+      <button class="tb" onmousedown="return false" onclick="fmt('insertOrderedList')"   title="Numbered list">1. List</button>
+      <button class="tb" onmousedown="return false" onclick="fmt('insertHorizontalRule')" title="Divider">— Rule</button>
+      <div class="tb-sep"></div>
+      <button class="tb" onmousedown="return false" onclick="openLinkPop()" title="Insert hyperlink">🔗 Link</button>
+      <button class="tb" onmousedown="return false" onclick="insertImg()"   title="Insert image by URL">🖼 Image</button>
+      <div class="tb-sep"></div>
+      <button class="tb" onmousedown="return false" onclick="fmt('removeFormat')" title="Clear formatting">✕ Clear</button>
+    </div>
+    <div class="ed-body" id="edBody" contenteditable="true">${p ? p.content : ''}</div>
+    <div class="ed-actions">
+      <button class="btn btn-gold" onclick="savePost()">Save Post</button>
+      <button class="btn" onclick="cancelEdit()">Cancel</button>
+    </div>`;
+  document.getElementById('edBody').focus();
+}
+
+function fmt(cmd) { document.getElementById('edBody').focus(); document.execCommand(cmd, false, null); }
+function blk(tag) { document.getElementById('edBody').focus(); document.execCommand('formatBlock', false, tag); }
+
+function openLinkPop() {
+  savedRange = saveRange();
+  const pop = document.getElementById('linkPop');
+  pop.classList.add('show');
+  document.getElementById('linkUrl').value = '';
+  document.getElementById('linkUrl').focus();
+}
+function closeLinkPop() { document.getElementById('linkPop').classList.remove('show'); }
+function doLink() {
+  const url = document.getElementById('linkUrl').value.trim();
+  closeLinkPop();
+  if (!url) return;
+  restoreRange(savedRange);
+  document.getElementById('edBody').focus();
+  document.execCommand('createLink', false, url);
+}
+function insertImg() {
+  const url = prompt('Image URL:');
+  if (!url) return;
+  document.getElementById('edBody').focus();
+  document.execCommand('insertImage', false, url);
+}
+
+function saveRange() {
+  const s = window.getSelection();
+  return s.rangeCount ? s.getRangeAt(0).cloneRange() : null;
+}
+function restoreRange(r) {
+  if (!r) return;
+  const s = window.getSelection();
+  s.removeAllRanges();
+  s.addRange(r);
+}
+
+function savePost() {
+  const title = document.getElementById('edTitle').value.trim();
+  const body  = document.getElementById('edBody').innerHTML.trim();
+  if (!title) { alert('Please enter a title.'); return; }
+
+  if (curId) {
+    const i = posts.findIndex(p => p.id === curId);
+    if (i !== -1) { posts[i].title = title; posts[i].content = body; }
+  } else {
+    const np = { id: 'p' + Date.now(), title, content: body, date: new Date().toISOString() };
+    posts.unshift(np);
+    curId = np.id;
+  }
+
+  editing = false;
+  persist();
+  renderSb();
+  showPost(curId);
+}
+
+function cancelEdit() {
+  editing = false;
+  if (curId) showPost(curId);
+  else if (posts.length) showPost(posts[0].id);
+  else renderEmpty();
+}
+
+/* ============================================================
+   DELETE
+   ============================================================ */
+function askDelete(id) {
+  delTargetId = id;
+  document.getElementById('delModal').classList.add('show');
+}
+function confirmDelete() {
+  document.getElementById('delModal').classList.remove('show');
+  posts = posts.filter(p => p.id !== delTargetId);
+  persist();
+  curId = null;
+  renderSb();
+  if (posts.length) showPost(posts[0].id);
+  else renderEmpty();
+}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+function openLogin() {
+  document.getElementById('loginModal').classList.add('show');
+  document.getElementById('pwIn').value = '';
+  document.getElementById('loginErr').textContent = '';
+  setTimeout(() => document.getElementById('pwIn').focus(), 60);
+}
+function closeLogin() { document.getElementById('loginModal').classList.remove('show'); }
+
+function tryLogin() {
+  if (document.getElementById('pwIn').value === ADMIN_PASS) {
+    isAdmin = true;
+    closeLogin();
+    document.getElementById('adminBtn').style.display  = 'none';
+    document.getElementById('adminBadge').style.display = '';
+    document.getElementById('newPostBtn').style.display = '';
+    document.getElementById('exportBtn').style.display  = '';
+    document.getElementById('logoutBtn').style.display  = '';
+    if (curId) showPost(curId); else renderEmpty();
+  } else {
+    document.getElementById('loginErr').textContent = 'Incorrect password. Try again.';
+  }
+}
+
+function doLogout() {
+  isAdmin = false; editing = false;
+  document.getElementById('adminBtn').style.display   = '';
+  document.getElementById('adminBadge').style.display = 'none';
+  document.getElementById('newPostBtn').style.display = 'none';
+  document.getElementById('exportBtn').style.display  = 'none';
+  document.getElementById('logoutBtn').style.display  = 'none';
+  if (curId) showPost(curId); else renderEmpty();
+}
+
+/* ============================================================
+   EXPORT SITE
+   Bakes current posts into the HTML file for download.
+   Upload the downloaded file to your subdomain server.
+   ============================================================ */
+function doExport() {
+  const ts  = Date.now();
+  const json = JSON.stringify(posts);
+  let src = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+  src = src.replace(
+    /const BAKED_POSTS = \[[\s\S]*?\]; \/\* __POSTS_END__ \*\//,
+    `const BAKED_POSTS = ${json}; /* __POSTS_END__ */`
+  );
+  src = src.replace(
+    /const BAKED_TS\s*=\s*\d+;\s*\/\* __TS_END__ \*\//,
+    `const BAKED_TS    = ${ts};  /* __TS_END__ */`
+  );
+
+  const blob = new Blob([src], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'), { href: url, download: 'blog.html' });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function persist() {
+  localStorage.setItem('blog_posts',    JSON.stringify(posts));
+  localStorage.setItem('blog_posts_ts', Date.now().toString());
+}
+
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+init();
+</script>
+
+
+</body></html>
