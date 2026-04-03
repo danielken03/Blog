@@ -250,6 +250,12 @@ let delTargetId = null;
    INIT
    ============================================================ */
 function init() {
+  document.getElementById('adminBtn').style.display    = '';
+  document.getElementById('adminBadge').style.display  = 'none';
+  document.getElementById('newPostBtn').style.display  = 'none';
+  document.getElementById('exportBtn').style.display   = 'none';
+  document.getElementById('logoutBtn').style.display   = 'none';
+
   document.title = BLOG_TITLE;
   document.getElementById('sbBlogTitle').textContent = BLOG_TITLE;
 
